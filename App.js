@@ -27,11 +27,11 @@ const App = () => {
 
   useEffect(() => {
     const trackierConfig = new TrackierConfig(
-      Constants.trDevKey,
+      process.env.TRDEVKEY,
       TrackierConfig.EnvironmentProduction
     );
 
-    trackierConfig.setAppSecret(Constants.secretKey, Constants.secretId);
+    trackierConfig.setAppSecret(process.env.SECRETKEY, process.env.SECRETID);
     TrackierSDK.setUserId("89992839923927");
     TrackierSDK.setUserEmail("satyam@trackier.com");
     TrackierSDK.setUserName("Satyam_React");
