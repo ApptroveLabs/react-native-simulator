@@ -1,0 +1,11 @@
+{
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "baseUrl": "./",
+    "paths": {
+      "react-native-trackier": ["react-native-trackier.d.ts"]
+    }
+  },
+  "include": ["./src/**/*", "./src/types/**/*", "react-native-trackier.d.ts"]
+}
