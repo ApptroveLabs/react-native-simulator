@@ -4,8 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Linking } from 'react-native';
 import { TrackierConfig, TrackierSDK } from 'react-native-trackier';
 import queryString from 'query-string';
-
-import Constants from './Screens/constants';
+import { TRDEVKEY, SECRETID, SECRETKEY } from 'react-native-dotenv';
+import { resolvePlugin } from '@babel/core';
 
 // Import the screens
 import SplashScreen from './Screens/Splash';
@@ -27,11 +27,12 @@ const App = () => {
 
   useEffect(() => {
     const trackierConfig = new TrackierConfig(
-      process.env.TRDEVKEY,
+      TRDEVKEY,
       TrackierConfig.EnvironmentProduction
     );
-
-    trackierConfig.setAppSecret(process.env.SECRETKEY, process.env.SECRETID);
+    
+    trackierConfig.setAppSecret(SECRETKEY, SECRETID);
+    
     TrackierSDK.setUserId("89992839923927");
     TrackierSDK.setUserEmail("satyam@trackier.com");
     TrackierSDK.setUserName("Satyam_React");
