@@ -1,10 +1,10 @@
 // screens/HomeScreen.js
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { TrackierConfig, TrackierSDK, TrackierEvent } from 'react-native-trackier';
 
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation, deferredDeeplinkUri }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.logoContainer}>
@@ -45,10 +45,25 @@ const HomeScreen = ({ navigation }) => {
       
       <TouchableOpacity
         style={styles.button}
+        onPress={() => navigation.navigate('DynamicLinkScreen')}
+      >
+        <Text style={styles.buttonText}>Dynamic Link & Resolver</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={styles.button}
         onPress={() => navigation.navigate('ProductPage')}
       >
         <Text style={styles.buttonText}>Product Page</Text>
       </TouchableOpacity>
+      
+      {/* Deferred Deeplink Display */}
+      <View style={styles.deferredContainer}>
+        <Text style={styles.deferredTitle}>Deferred Deeplink Value:</Text>
+        <Text style={styles.deferredValue}>
+          {deferredDeeplinkUri || 'No deferred deeplink received yet'}
+        </Text>
+      </View>
     </ScrollView>
   );
 };
@@ -87,6 +102,27 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  deferredContainer: {
+    marginTop: 30,
+    padding: 15,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#dee2e6',
+    width: '100%',
+  },
+  deferredTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#495057',
+    marginBottom: 8,
+  },
+  deferredValue: {
+    fontSize: 14,
+    color: '#6c757d',
+    fontFamily: 'monospace',
+    lineHeight: 20,
   },
 });
 

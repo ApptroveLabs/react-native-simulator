@@ -27,15 +27,11 @@
             <category android:name="android.intent.category.BROWSABLE" />
 
             <!-- Add your deep link configurations -->
-            <data
-                android:host="www.trackier.com"
-                android:pathPrefix="/product"
-                android:scheme="unilink" />
 
             <!-- App Link -->
             <data
                 android:host="trackier.u9ilnk.me"
-                android:pathPrefix="/d/vqLDNPH12A"
+                android:pathPrefix="/product"
                 android:scheme="https" />
         </intent-filter>
       </activity>
@@ -46,7 +42,7 @@
 
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="12451000" />
+            android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="CLEVERTAP_ACCOUNT_ID"
             android:value="TEST-7KZ-KR5-WR7Z" />
