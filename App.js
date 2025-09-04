@@ -49,23 +49,35 @@ const App = () => {
 
     trackierConfig.setDeferredDeeplinkCallbackListener(function(uri) {
       console.log("Deferred Deeplink Callback received");
-      console.log("URL: " + uri);
+      console.log("URL:", uri);
       
       // Store the deferred deeplink URI
       setDeferredDeeplinkUri(uri);
       
       // Process the deferred deeplink URL
       if (uri) {
+        // Extract URL string from the object if it's an object
+        let urlString = '';
+        if (typeof uri === 'object' && uri !== null) {
+          // If it's an object, try to get the URL from common properties
+          urlString = uri.url || uri.deepLinkValue || uri.uri || JSON.stringify(uri);
+          console.log("Extracted URL string:", urlString);
+        } else if (typeof uri === 'string') {
+          urlString = uri;
+        }
+        
         // Check if it's a cake-related URL
-        if (uri.includes('product_id') && uri.includes('quantity')) {
+        if (urlString && urlString.includes('product_id') && urlString.includes('quantity')) {
           console.log("🎂 Cake deeplink detected, processing...");
-          handleDeepLink({ url: uri });
+          handleDeepLink({ url: urlString });
         } else {
-          console.log("📱 Non-cake deeplink received:", uri);
+          console.log("📱 Non-cake deeplink received:", urlString);
         }
       }
     });
-    
+
+    trackierConfig.setFacebookAppId("FbTest123");  // For Android Only
+    trackierConfig.setAndroidId("AndroidTest123");  // For Android only
     trackierConfig.setAppSecret(SECRETKEY, SECRETID);
     
     TrackierSDK.setUserId("89992839923927");

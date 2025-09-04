@@ -5,6 +5,7 @@ import { TrackierConfig, TrackierSDK, TrackierEvent } from 'react-native-trackie
 
 
 const HomeScreen = ({ navigation, deferredDeeplinkUri }) => {
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.logoContainer}>
@@ -61,7 +62,11 @@ const HomeScreen = ({ navigation, deferredDeeplinkUri }) => {
       <View style={styles.deferredContainer}>
         <Text style={styles.deferredTitle}>Deferred Deeplink Value:</Text>
         <Text style={styles.deferredValue}>
-          {deferredDeeplinkUri || 'No deferred deeplink received yet'}
+          {deferredDeeplinkUri 
+            ? (typeof deferredDeeplinkUri === 'object' 
+                ? JSON.stringify(deferredDeeplinkUri, null, 2)
+                : deferredDeeplinkUri)
+            : 'No deferred deeplink received yet'}
         </Text>
       </View>
     </ScrollView>

@@ -31,7 +31,7 @@
             <!-- App Link -->
             <data
                 android:host="trackier.u9ilnk.me"
-                android:pathPrefix="/product"
+                android:pathPrefix="/d"
                 android:scheme="https" />
         </intent-filter>
       </activity>
