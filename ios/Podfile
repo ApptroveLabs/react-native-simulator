@@ -5,6 +5,10 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+# Disable new architecture globally
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+ENV['USE_HERMES'] = '1'
+
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
@@ -20,7 +24,11 @@ target 'React_Simulator' do
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    # Disable new architecture to fix TurboModule crash
+    :fabric_enabled => false,
+    :hermes_enabled => true,
+    :new_arch_enabled => false
   )
 
   target 'React_SimulatorTests' do
@@ -29,6 +37,12 @@ target 'React_Simulator' do
   end
 
   post_install do |installer|
+    # Disable new architecture to fix TurboModule crash
+    ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+    ENV['USE_HERMES'] = '1'
+    ENV['RCT_FABRIC_ENABLED'] = '0'
+    ENV['RCT_TURBOMODULE_ENABLED'] = '0'
+    
     # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
