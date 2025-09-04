@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (5.5.0)
+  - Alamofire (5.9.1)
   - boost (1.84.0)
   - CryptoSwift (1.4.3)
   - DoubleConversion (1.1.6)
@@ -1310,9 +1310,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-trackier (1.6.73):
+  - react-native-trackier (1.6.75):
     - React
-    - trackier-ios-sdk (= 1.6.73)
+    - trackier-ios-sdk (= 1.6.74)
   - React-nativeconfig (0.76.5)
   - React-NativeModulesApple (0.76.5):
     - glog
@@ -1778,8 +1778,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SocketRocket (0.7.1)
-  - trackier-ios-sdk (1.6.73):
-    - Alamofire (~> 5.5.0)
+  - trackier-ios-sdk (1.6.74):
+    - Alamofire (~> 5.9.0)
     - CryptoSwift (~> 1.4.1)
     - Willow (~> 5.0)
   - Willow (5.2.1)
@@ -2014,7 +2014,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
+  Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
   CryptoSwift: a0799ee936271bd2253a006f1e4523df21845000
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
@@ -2052,7 +2052,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 7eb5d69e1154e7743487ef0c8d7261e5b59afb32
   React-microtasksnativemodule: 01dd998649ff5f8814846b7eee84c4d57f5d3671
   react-native-safe-area-context: f145b8906585d648f9f9c7dfa3885bac54f38fcc
-  react-native-trackier: c1391632d0d50f712b4e8025f0865510a0cb600c
+  react-native-trackier: 35ff96b9643a6f1e815cde8486715974315ebe3c
   React-nativeconfig: f7ab6c152e780b99a8c17448f2d99cf5f69a2311
   React-NativeModulesApple: 9aeb901b9bfcc9235e912445fb3cf4780a99baf4
   React-perflogger: 16e049953d21b37e9871ddf0b02f414e12ff14ba
@@ -2087,7 +2087,7 @@ SPEC CHECKSUMS:
   RNScreens: 351f431ef2a042a1887d4d90e1c1024b8ae9d123
   RNVectorIcons: a24016b773380b1aa37fca501ec6b94a951890a0
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  trackier-ios-sdk: db666ad7bcf2b25550792bb55b61bff8a98f7b4f
+  trackier-ios-sdk: 4a8a2e3cc45e2a8fc7f9fd0be77e90578b8f9936
   Willow: a6310f9aedcb6f4de8c35b94fd3416a660ae9280
   Yoga: fcc198acd4a55599b3468cfb6ebc526baff5f06e
 
