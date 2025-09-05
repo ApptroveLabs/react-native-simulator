@@ -461,9 +461,9 @@ const testResolveWithSampleUrl = async () => {
 
 ### Environment Variables (`.env`):
 ```env
-TRDEVKEY=ee9f21fb-5848-4ed9-8d9c-e4093e6d220c
-SECRETID=66681d089b7dfd9466cdb491
-SECRETKEY=46e2d5a5-80e2-42e6-b528-b4eb11c1d226
+TRDEVKEY=xxxxxxxxxxxxxxxxxxxxx
+SECRETID=xxxxxxxxxxxxxxxxxxxxx
+SECRETKEY=xxxxxxxxxxxxxxxxxxxxx
 ```
 
 ### SDK Key Configuration:
@@ -496,9 +496,9 @@ const trackierConfig = new TrackierConfig(
 
 ### Console Output Examples:
 ```
-LOG  TRDEVKEY: ee9f21fb-5848-4ed9-8d9c-e4093e6d220c
-LOG  SECRETID: 66681d089b7dfd9466cdb491
-LOG  SECRETKEY: 46e2d5a5-80e2-42e6-b528-b4eb11c1d226
+LOG  TRDEVKEY: xxxxxxxxxxxxxxxxxxxxx
+LOG  SECRETID: xxxxxxxxxxxxxxxxxxxxx
+LOG  SECRETKEY: xxxxxxxxxxxxxxxxxxxxx
 LOG  Trackier SDK initialized successfully
 LOG  Deferred Deeplink Callback received
 LOG  URL: trackier58.u9ilnk.me/d?dlv=CakeActivity&product_id=chocochip&quantity=2
