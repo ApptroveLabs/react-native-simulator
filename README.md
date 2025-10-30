@@ -39,6 +39,7 @@ This document provides a comprehensive overview of the Trackier SDK integration 
 
 ## Table of Contents
 - [SDK Initialization](#sdk-initialization)
+- [Apple Ads Token Integration](#apple-ads-token-integration)
 - [Event Tracking](#event-tracking)
 - [Deep Link Handling](#deep-link-handling)
 - [Dynamic Link Creation](#dynamic-link-creation)
@@ -191,6 +192,82 @@ const purchase = () => {
 - Custom JSON data support
 - User feedback integration
 
+## Apple Ads Token Integration
+
+**Location**: `App.js`
+
+The app now includes comprehensive Apple Search Ads attribution token integration for enhanced iOS tracking:
+
+### Implementation Details
+
+```javascript
+// Apple token retrieval function
+const getAppleAdsToken = async () => {
+  try {
+    if (Platform.OS === 'ios') {
+      console.log('Attempting to get Apple Ads token...');
+      const token = await getAttributionToken();
+      if (token) {
+        console.log('Apple Ads Token retrieved successfully:', token);
+      } else {
+        console.log('Apple Ads Token is null (may be normal for simulator)');
+      }
+      return token;
+    } else {
+      console.log('Apple Ads Token not available on Android');
+      return null;
+    }
+  } catch (error) {
+    console.log('Error getting Apple Ads token:', error);
+    return null;
+  }
+};
+
+// Integration with Trackier SDK
+const appleAdsToken = await getAppleAdsToken();
+if (appleAdsToken) {
+  console.log('Updating Trackier with Apple Ads token...');
+  TrackierSDK.updateAppleAdsToken(appleAdsToken);
+  console.log('Apple Ads token updated in Trackier SDK');
+}
+```
+
+### Key Features
+
+- **Automatic Token Retrieval**: Gets Apple Ads token on app launch
+- **Platform Detection**: Only runs on iOS devices
+- **Error Handling**: Graceful handling of token retrieval failures
+- **SDK Integration**: Updates Trackier SDK with token before initialization
+- **Comprehensive Logging**: Detailed console output for debugging
+
+### Console Output Examples
+
+**Successful Token Retrieval** (Real Device):
+```
+Attempting to get Apple Ads token...
+Apple Ads Token retrieved successfully: [encrypted_token]
+Updating Trackier with Apple Ads token...
+Apple Ads token updated in Trackier SDK
+```
+
+**Simulator Behavior** (Normal):
+```
+Attempting to get Apple Ads token...
+Apple Ads Token is null (may be normal for simulator)
+No Apple Ads token to update (normal for simulator or Android)
+```
+
+### Requirements
+
+- **iOS 14.3+**: Required for Apple Ads attribution
+- **Real Device Testing**: Tokens are typically null in iOS Simulator
+- **Apple Search Ads Campaigns**: Tokens are only available when app is installed via Apple Search Ads
+
+### Dependencies
+
+- `react-native-attribution-token`: Library for fetching Apple Ads attribution token
+- `react-native-trackier`: Trackier SDK for attribution tracking
+
 ## Deep Link Handling
 
 ### Deep Link Listener
@@ -218,10 +295,10 @@ const deferredDeeplinkCallback = function(uri) {
     
     // Check for cake-related URLs
     if (urlString && urlString.includes('product_id') && urlString.includes('quantity')) {
-      console.log("🎂 Cake deeplink detected, processing...");
+      console.log("Cake deeplink detected, processing...");
       handleDeepLink({ url: urlString });
     } else {
-      console.log("📱 Non-cake deeplink received:", urlString);
+      console.log("Non-cake deeplink received:", urlString);
     }
   }
 };
@@ -499,10 +576,14 @@ const trackierConfig = new TrackierConfig(
 LOG  TRDEVKEY: xxxxxxxxxxxxxxxxxxxxx
 LOG  SECRETID: xxxxxxxxxxxxxxxxxxxxx
 LOG  SECRETKEY: xxxxxxxxxxxxxxxxxxxxx
+LOG  Attempting to get Apple Ads token...
+LOG  Apple Ads Token retrieved successfully: sXYWFCZOT70p/K+6zCImMfFke4yvkRxXWhJHfxxkBrAGCZUxtvrPQQI6o89xg/U+TY6xM0SJNC3aEB9qfVr2Ban4cGjAHbaVCAAAAVADAAAAzwAAAIBLCPnX725nACY8xVl/urOBDPZCSJuFvOVo4bBpJ8pgb5Oj+bK3nC8nXoRZywHYg2FdHatxPiGwnI9n7dGIMhmdLbwceLPWqQ3rtw3bahn+IwyYDQGHNX+MNWjrdjU3ak4uKupmy/204Y+lr3NTW4OuXZSJLTXP7K6kKxyR5k5CPAAAABqyYkfVnllCC1p6hst5dO9udf1etNw3rRy0IwAAAJ8B7WFUipOOlvz2+OepluIjQAmThZcAAACGAAGYowR9i7XvrsbX54LBbI/FaQMHFRnOVH+8gai5/8ynv90zVmWxMn+RkxbMAJpCOvDMfsHWyailyeFOLKllyEf3LC2JmG2GA9K4X9geUH8dJX2Hg6Go+BxyoLxgDiM9AIc1OP2e/0YGAcmGhKRv08RT9KWEavPXQajDcuvksLAWmsinChYAAAAAAAABBEsIAAA=
+LOG  Updating Trackier with Apple Ads token...
+LOG  Apple Ads token updated in Trackier SDK
 LOG  Trackier SDK initialized successfully
 LOG  Deferred Deeplink Callback received
 LOG  URL: trackier58.u9ilnk.me/d?dlv=CakeActivity&product_id=chocochip&quantity=2
-LOG  🎂 Cake deeplink detected, processing...
+LOG  Cake deeplink detected, processing...
 LOG   Processing deep link URL: trackier58.u9ilnk.me/d?dlv=CakeActivity&product_id=chocochip&quantity=2
 LOG   Parsed parameters: {"dlv": "CakeActivity", "product_id": "chocochip", "quantity": "2"}
 LOG   Cake parameters detected:
@@ -519,17 +600,17 @@ LOG   Navigating to CakeScreen...
 
 ### Android
 
-- ✅ **Deep Link Handling**
-- ✅ **Event Tracking**
-- ✅ **Dynamic Link Creation**
-- ✅ **Facebook App ID Integration**
+- **Deep Link Handling**
+- **Event Tracking**
+- **Dynamic Link Creation**
+- **Facebook App ID Integration**
 
 ### iOS
-- ✅ **iPhone Simulator** (iOS 18.1)
-- ✅ **Deep Link Handling**
-- ✅ **Event Tracking**
-- ✅ **Dynamic Link Creation**
-- ✅ **Apple Ads Token Integration** (Ready for implementation)
+- **iPhone Simulator** (iOS 18.1)
+- **Deep Link Handling**
+- **Event Tracking**
+- **Dynamic Link Creation**
+- **Apple Ads Token Integration** (Successfully implemented)
 
 ## Event Summary
 
@@ -543,18 +624,19 @@ LOG   Navigating to CakeScreen...
 
 ## Key Features Implemented
 
-✅ **SDK Initialization** - Complete setup with environment variables  
-✅ **Event Tracking** - Built-in and custom events with revenue tracking  
-✅ **Deep Link Handling** - Comprehensive deep link processing and navigation  
-✅ **Dynamic Link Creation** - Advanced link creation with multi-platform support  
-✅ **Deferred Deep Link Resolution** - URL resolution with structured data display  
-✅ **Error Handling** - Proper error logging and user feedback  
-✅ **Logging** - Detailed logging for debugging and monitoring  
-✅ **Cross-Platform Support** - Android and iOS compatibility  
-✅ **User Interface** - Modern, user-friendly interfaces for all features  
-✅ **Environment Management** - Secure credential management with dotenv  
-✅ **Parameter System** - Dynamic parameter support (up to 10 parameters)  
-✅ **Currency Support** - 50+ currency options for revenue tracking  
+**SDK Initialization** - Complete setup with environment variables  
+**Event Tracking** - Built-in and custom events with revenue tracking  
+**Deep Link Handling** - Comprehensive deep link processing and navigation  
+**Dynamic Link Creation** - Advanced link creation with multi-platform support  
+**Apple Ads Token Integration** - Automatic Apple Search Ads attribution token retrieval and update  
+**Deferred Deep Link Resolution** - URL resolution with structured data display  
+**Error Handling** - Proper error logging and user feedback  
+**Logging** - Detailed logging for debugging and monitoring  
+**Cross-Platform Support** - Android and iOS compatibility  
+**User Interface** - Modern, user-friendly interfaces for all features  
+**Environment Management** - Secure credential management with dotenv  
+**Parameter System** - Dynamic parameter support (up to 10 parameters)  
+**Currency Support** - 50+ currency options for revenue tracking  
 
 ## Usage Instructions
 
@@ -638,6 +720,21 @@ For technical support and questions:
 - **Documentation**: [Trackier Documentation Portal](https://docs.trackier.com)
 - **Support Email**: support@trackier.com
 - **GitHub Issues**: Create an issue in the repository
+
+## Summary
+
+This React Native Simulator app demonstrates a comprehensive implementation of the Trackier SDK with advanced features including:
+
+- **Complete SDK Integration**: Production-ready setup with environment variables
+- **Apple Ads Token Integration**: Automatic Apple Search Ads attribution token retrieval and update
+- **Event Tracking**: Both built-in and custom events with revenue tracking
+- **Deep Link Processing**: Comprehensive URL handling with parameter extraction
+- **Dynamic Link Creation**: Advanced link generation with multi-platform support
+- **User Interface**: Modern, intuitive interfaces for all features
+- **Error Handling**: Robust error management and user feedback
+- **Cross-Platform Support**: Full Android and iOS compatibility
+
+The implementation serves as a complete reference for integrating Trackier SDK into React Native applications, showcasing best practices for attribution tracking, Apple Search Ads integration, event management, and user engagement.
 
 ## License
 

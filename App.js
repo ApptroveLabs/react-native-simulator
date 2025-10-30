@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { TrackierConfig, TrackierSDK } from 'react-native-trackier';
+import { getAttributionToken } from 'react-native-attribution-token';
 import queryString from 'query-string';
 import { TRDEVKEY, SECRETID, SECRETKEY } from 'react-native-dotenv';
 import { resolvePlugin } from '@babel/core';
@@ -28,69 +29,120 @@ const App = () => {
   const [navigateToCake, setNavigateToCake] = useState(false);
   const [deferredDeeplinkUri, setDeferredDeeplinkUri] = useState(null);
 
-  useEffect(() => {
+  // Function to get Apple Ads token
+  const getAppleAdsToken = async () => {
     try {
-      console.log('TRDEVKEY:', TRDEVKEY);
-      console.log('SECRETID:', SECRETID);
-      console.log('SECRETKEY:', SECRETKEY);
-      
-      if (!TRDEVKEY || !SECRETID || !SECRETKEY) {
-        console.error('Trackier SDK credentials are missing! Please check your .env file.');
-        setInitializing(false);
-        return;
+      // Only attempt to get token on iOS
+      if (Platform.OS === 'ios') {
+        console.log('Attempting to get Apple Ads token...');
+        const token = await getAttributionToken();
+        if (token) {
+          console.log('Apple Ads Token retrieved successfully:', token);
+        } else {
+          console.log('Apple Ads Token is null (may be normal for simulator)');
+        }
+        return token;
+      } else {
+        console.log('Apple Ads Token not available on Android');
+        return null;
       }
+    } catch (error) {
+      console.log('Error getting Apple Ads token:', error);
+      return null;
+    }
+  };
 
-      TrackierSDK.parseDeepLink("https://trackier58.u9ilnk.me/d/g5Hizea0AX");
+  useEffect(() => {
+    const initializeSDK = async () => {
+      try {
+        console.log('TRDEVKEY:', TRDEVKEY);
+        console.log('SECRETID:', SECRETID);
+        console.log('SECRETKEY:', SECRETKEY);
+        
+        if (!TRDEVKEY || !SECRETID || !SECRETKEY) {
+          console.error('Trackier SDK credentials are missing! Please check your .env file.');
+          setInitializing(false);
+          return;
+        }
 
-    const trackierConfig = new TrackierConfig(
-      TRDEVKEY,
-      TrackierConfig.EnvironmentProduction
-    );
+        const trackierConfig = new TrackierConfig(
+          TRDEVKEY,
+          TrackierConfig.EnvironmentDevelopment
+        );
 
-    trackierConfig.setDeferredDeeplinkCallbackListener(function(uri) {
-      console.log("Deferred Deeplink Callback received");
-      console.log("URL:", uri);
-      
-      // Store the deferred deeplink URI
-      setDeferredDeeplinkUri(uri);
-      
-      // Process the deferred deeplink URL
-      if (uri) {
-        // Extract URL string from the object if it's an object
-        let urlString = '';
-        if (typeof uri === 'object' && uri !== null) {
-          // If it's an object, try to get the URL from common properties
-          urlString = uri.url || uri.deepLinkValue || uri.uri || JSON.stringify(uri);
-          console.log("Extracted URL string:", urlString);
-        } else if (typeof uri === 'string') {
-          urlString = uri;
+        trackierConfig.setDeferredDeeplinkCallbackListener(function(uri) {
+          console.log("Deferred Deeplink Callback received");
+          console.log("URL:", uri);
+          
+          // Store the deferred deeplink URI
+          setDeferredDeeplinkUri(uri);
+          
+          // Process the deferred deeplink URL
+          if (uri) {
+            // Extract URL string from the object if it's an object
+            let urlString = '';
+            if (typeof uri === 'object' && uri !== null) {
+              // If it's an object, try to get the URL from common properties
+              urlString = uri.url || uri.deepLinkValue || uri.uri || JSON.stringify(uri);
+              console.log("Extracted URL string:", urlString);
+            } else if (typeof uri === 'string') {
+              urlString = uri;
+            }
+            
+            // Check if it's a cake-related URL
+            if (urlString && urlString.includes('product_id') && urlString.includes('quantity')) {
+              console.log("Cake deeplink detected, processing...");
+              handleDeepLink({ url: urlString });
+            } else {
+              console.log("Non-cake deeplink received:", urlString);
+            }
+          }
+        });
+
+        trackierConfig.setFacebookAppId("FbTest123");  // For Android Only
+        trackierConfig.setAndroidId("AndroidTest123");  // For Android only
+        trackierConfig.setAppSecret(SECRETKEY, SECRETID);
+        
+       //  Get Apple Ads token before initializing SDK
+        try {
+          const appleAdsToken = await getAppleAdsToken();
+          if (appleAdsToken) {
+            console.log('Updating Trackier with Apple Ads token...');
+            TrackierSDK.updateAppleAdsToken(appleAdsToken);
+            console.log('Apple Ads token updated in Trackier SDK');
+          } else {
+            console.log('No Apple Ads token to update (normal for simulator or Android)');
+          }
+        } catch (tokenError) {
+          console.log('Error handling Apple Ads token:', tokenError);
         }
         
-        // Check if it's a cake-related URL
-        if (urlString && urlString.includes('product_id') && urlString.includes('quantity')) {
-          console.log("🎂 Cake deeplink detected, processing...");
-          handleDeepLink({ url: urlString });
-        } else {
-          console.log("📱 Non-cake deeplink received:", urlString);
+        TrackierSDK.setUserId("89992839923927");
+        TrackierSDK.setUserEmail("satyam@trackier.com");
+        TrackierSDK.setUserName("Satyam_React");
+        TrackierSDK.setUserPhone("8252786831");
+
+        // Initialize Trackier SDK
+        try {
+          TrackierSDK.initialize(trackierConfig);
+          console.log('Trackier SDK initialized successfully');
+          
+          // Parse deep link after SDK initialization
+          TrackierSDK.parseDeepLink("https://trackier58.u9ilnk.me/d/g5Hizea0AX");
+        } catch (sdkError) {
+          console.error('Error initializing Trackier SDK:', sdkError);
+          // Continue with app initialization even if Trackier fails
         }
+        
+        // Mark initialization as complete
+        setInitializing(false);
+      } catch (error) {
+        console.error('Error initializing Trackier SDK:', error);
+        setInitializing(false);
       }
-    });
+    };
 
-    trackierConfig.setFacebookAppId("FbTest123");  // For Android Only
-    trackierConfig.setAndroidId("AndroidTest123");  // For Android only
-    trackierConfig.setAppSecret(SECRETKEY, SECRETID);
-    
-    TrackierSDK.setUserId("89992839923927");
-    TrackierSDK.setUserEmail("satyam@trackier.com");
-    TrackierSDK.setUserName("Satyam_React");
-    TrackierSDK.setUserPhone("8252786831");
-
-    // Initialize Trackier SDK
-    TrackierSDK.initialize(trackierConfig);
-    console.log('Trackier SDK initialized successfully');
-  } catch (error) {
-    console.error('Error initializing Trackier SDK:', error);
-  }
+    initializeSDK();
 
     // Deep link listener
     const deepLinkListener = Linking.addEventListener('url', handleDeepLink);
@@ -164,7 +216,7 @@ const App = () => {
         setDeepLinkParams(null); // Reset on error
       }
     } else {
-      console.log("⚠️ No URL provided to handleDeepLink");
+      console.log("No URL provided to handleDeepLink");
       setDeepLinkParams(null);
     }
   };

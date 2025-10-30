@@ -1244,6 +1244,27 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-attribution-token (1.0.5):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-safe-area-context (5.0.0):
     - React-Core
   - react-native-trackier (1.6.75):
@@ -1717,6 +1738,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - react-native-attribution-token (from `../node_modules/react-native-attribution-token`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-trackier (from `../node_modules/react-native-trackier`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
@@ -1834,6 +1856,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-attribution-token:
+    :path: "../node_modules/react-native-attribution-token"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-trackier:
@@ -1945,6 +1969,7 @@ SPEC CHECKSUMS:
   React-logger: ae95f0effa7e1791bd6f7283caddca323d4fbc1e
   React-Mapbuffer: 7eb5d69e1154e7743487ef0c8d7261e5b59afb32
   React-microtasksnativemodule: 16e31e4f503a5f46adafd035096130418c3bce70
+  react-native-attribution-token: e2cc8f3927152e2323cb714b9d5612c18d2e8ec4
   react-native-safe-area-context: 314537f8fca6fe2c06bd53fc8905efa9e6aaaf59
   react-native-trackier: 35ff96b9643a6f1e815cde8486715974315ebe3c
   React-nativeconfig: f7ab6c152e780b99a8c17448f2d99cf5f69a2311
