@@ -1,4 +1,4 @@
-package com.react_simulator
+package com.trackier.vistmarket
 
 import android.content.Intent
 import android.net.Uri

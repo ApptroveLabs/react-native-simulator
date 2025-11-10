@@ -1,4 +1,4 @@
-package com.react_simulator
+package com.trackier.vistmarket
 
 import android.app.Application
 import com.facebook.react.PackageList
@@ -42,3 +42,4 @@ class MainApplication : Application(), ReactApplication {
     }
   }
 }
+

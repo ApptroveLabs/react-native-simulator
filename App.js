@@ -5,9 +5,10 @@ import { Linking, Platform } from 'react-native';
 import { TrackierConfig, TrackierSDK } from 'react-native-trackier';
 import { getAttributionToken } from 'react-native-attribution-token';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import messaging from '@react-native-firebase/messaging';
+import { getApp, getApps } from '@react-native-firebase/app';
 import queryString from 'query-string';
 import { TRDEVKEY, SECRETID, SECRETKEY } from 'react-native-dotenv';
-import { resolvePlugin } from '@babel/core';
 
 // Import the screens
 import SplashScreen from './Screens/Splash';
@@ -29,6 +30,37 @@ const App = () => {
   const [deepLinkParams, setDeepLinkParams] = useState(null);
   const [navigateToCake, setNavigateToCake] = useState(false);
   const [deferredDeeplinkUri, setDeferredDeeplinkUri] = useState(null);
+
+  // Initialize FCM - Android only, send token to Trackier on refresh
+  const initializeFCM = async () => {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+
+    try {
+      const apps = getApps();
+      if (apps.length === 0) {
+        return;
+      }
+
+      const app = getApp();
+      const messagingInstance = messaging(app);
+      
+      const authStatus = await messagingInstance.requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      if (enabled) {
+        messagingInstance.onTokenRefresh((newToken) => {
+          console.log('FCM token refreshed:', newToken);
+          TrackierSDK.sendFcmToken(newToken);
+        });
+      }
+    } catch (error) {
+      console.log('Error initializing FCM:', error);
+    }
+  };
 
   // Function to request ATT permission (React-side only)
   const requestATTPermission = async () => {
@@ -198,6 +230,16 @@ const App = () => {
         } catch (sdkError) {
           console.error('Error initializing Trackier SDK:', sdkError);
           // Continue with app initialization even if Trackier fails
+        }
+
+        // Initialize FCM after SDK initialization (important: SDK must be ready first)
+        // Only initialize on Android
+        if (Platform.OS === 'android') {
+          try {
+            await initializeFCM();
+          } catch (fcmError) {
+            console.log('Error initializing FCM:', fcmError);
+          }
         }
         
         // Mark initialization as complete

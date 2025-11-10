@@ -89,6 +89,9 @@ APP_BASE_NAME=${0##*/}
 APP_HOME=$( cd -P "${APP_HOME:-./}" > /dev/null && printf '%s
 ' "$PWD" ) || exit
 
+# Set PATH to include Node.js for codegen tasks
+export PATH="/Users/satyamjha/.local/bin:$PATH"
+
 # Use the maximum available, or set MAX_FD != -1 to use that value.
 MAX_FD=maximum
 
