@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Linking, Platform } from 'react-native';
 import { TrackierConfig, TrackierSDK } from 'react-native-trackier';
 import { getAttributionToken } from 'react-native-attribution-token';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import queryString from 'query-string';
 import { TRDEVKEY, SECRETID, SECRETKEY } from 'react-native-dotenv';
 import { resolvePlugin } from '@babel/core';
@@ -28,6 +29,51 @@ const App = () => {
   const [deepLinkParams, setDeepLinkParams] = useState(null);
   const [navigateToCake, setNavigateToCake] = useState(false);
   const [deferredDeeplinkUri, setDeferredDeeplinkUri] = useState(null);
+
+  // Function to request ATT permission (React-side only)
+  const requestATTPermission = async () => {
+    try {
+      if (Platform.OS === 'ios') {
+        console.log('Requesting ATT (App Tracking Transparency) permission...');
+        
+        try {
+          // Request ATT permission using react-native-permissions
+          const result = await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
+          
+          console.log('ATT permission result:', result);
+          
+          switch (result) {
+            case RESULTS.UNAVAILABLE:
+              console.log('ATT is not available on this device');
+              break;
+            case RESULTS.DENIED:
+              console.log('ATT permission denied');
+              break;
+            case RESULTS.BLOCKED:
+              console.log('ATT permission blocked');
+              break;
+            case RESULTS.GRANTED:
+              console.log('ATT permission granted');
+              break;
+            case RESULTS.LIMITED:
+              console.log('ATT permission limited');
+              break;
+          }
+          
+          return result;
+        } catch (error) {
+          console.log('Error requesting ATT permission:', error);
+          return null;
+        }
+      } else {
+        console.log('ATT permission not applicable on Android');
+        return null;
+      }
+    } catch (error) {
+      console.log('Error in ATT permission flow:', error);
+      return null;
+    }
+  };
 
   // Function to get Apple Ads token
   const getAppleAdsToken = async () => {
@@ -63,6 +109,26 @@ const App = () => {
           console.error('Trackier SDK credentials are missing! Please check your .env file.');
           setInitializing(false);
           return;
+        }
+
+        // Request ATT permission and wait on iOS before SDK initialization
+        if (Platform.OS === 'ios') {
+          try {
+            console.log('Requesting ATT permission before SDK initialization...');
+            await requestATTPermission();
+            
+            // Wait for ATT user authorization with 20 second timeout
+            console.log('Waiting for ATT user authorization (20 seconds timeout)...');
+            if (TrackierSDK && typeof TrackierSDK.waitForATTUserAuthorization === 'function') {
+              TrackierSDK.waitForATTUserAuthorization(20);
+              console.log('ATT wait completed');
+            } else {
+              console.log('waitForATTUserAuthorization method not available');
+            }
+          } catch (attError) {
+            console.log('Error in ATT flow:', attError);
+            // Continue with SDK initialization even if ATT fails
+          }
         }
 
         const trackierConfig = new TrackierConfig(
@@ -143,6 +209,7 @@ const App = () => {
     };
 
     initializeSDK();
+
 
     // Deep link listener
     const deepLinkListener = Linking.addEventListener('url', handleDeepLink);
