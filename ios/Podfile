@@ -28,6 +28,17 @@ end
 target 'React_Simulator' do
   config = use_native_modules!
   
+  # Enable modular headers ONLY for pods that require it for Swift compatibility
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'nanopb', :modular_headers => true
+  pod 'GoogleDataTransport', :modular_headers => true
+  pod 'PromisesObjC', :modular_headers => true
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'FirebaseMessaging', :modular_headers => true
+  pod 'FirebaseInstallations', :modular_headers => true
+  pod 'FirebaseCoreExtension', :modular_headers => true
+  
   # Setup permissions for react-native-permissions
   setup_permissions([
     'AppTrackingTransparency',

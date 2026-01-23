@@ -45,7 +45,7 @@ const App = () => {
 
       const app = getApp();
       const messagingInstance = messaging(app);
-      
+
       const authStatus = await messagingInstance.requestPermission();
       const enabled =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
@@ -62,18 +62,49 @@ const App = () => {
     }
   };
 
+  // Initialize APNS - iOS only, send token to Trackier
+  const initializeAPNS = async () => {
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+
+    try {
+      // Must register for remote messages BEFORE getting the token
+      await messaging().registerDeviceForRemoteMessages();
+
+      const authStatus = await messaging().requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      if (enabled) {
+        // For iOS, we need the APN token specifically for Trackier
+        const apnsToken = await messaging().getAPNSToken();
+        if (apnsToken) {
+          console.log('APN Token retrieved successfully:', apnsToken);
+          TrackierSDK.sendAPNToken(apnsToken);
+          console.log('APN Token sent to Trackier SDK');
+        } else {
+          console.log('APN Token is null (may be normal if push notifications are not configured yet)');
+        }
+      }
+    } catch (error) {
+      console.log('Error initializing APNS:', error);
+    }
+  };
+
   // Function to request ATT permission (React-side only)
   const requestATTPermission = async () => {
     try {
       if (Platform.OS === 'ios') {
         console.log('Requesting ATT (App Tracking Transparency) permission...');
-        
+
         try {
           // Request ATT permission using react-native-permissions
           const result = await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
-          
+
           console.log('ATT permission result:', result);
-          
+
           switch (result) {
             case RESULTS.UNAVAILABLE:
               console.log('ATT is not available on this device');
@@ -91,7 +122,7 @@ const App = () => {
               console.log('ATT permission limited');
               break;
           }
-          
+
           return result;
         } catch (error) {
           console.log('Error requesting ATT permission:', error);
@@ -136,7 +167,6 @@ const App = () => {
         console.log('TRDEVKEY:', TRDEVKEY);
         console.log('SECRETID:', SECRETID);
         console.log('SECRETKEY:', SECRETKEY);
-        
         if (!TRDEVKEY || !SECRETID || !SECRETKEY) {
           console.error('Trackier SDK credentials are missing! Please check your .env file.');
           setInitializing(false);
@@ -148,7 +178,6 @@ const App = () => {
           try {
             console.log('Requesting ATT permission before SDK initialization...');
             await requestATTPermission();
-            
             // Wait for ATT user authorization with 20 second timeout
             console.log('Waiting for ATT user authorization (20 seconds timeout)...');
             if (TrackierSDK && typeof TrackierSDK.waitForATTUserAuthorization === 'function') {
@@ -168,13 +197,13 @@ const App = () => {
           TrackierConfig.EnvironmentDevelopment
         );
 
-        trackierConfig.setDeferredDeeplinkCallbackListener(function(uri) {
+        trackierConfig.setDeferredDeeplinkCallbackListener(function (uri) {
           console.log("Deferred Deeplink Callback received");
           console.log("URL:", uri);
-          
+
           // Store the deferred deeplink URI
           setDeferredDeeplinkUri(uri);
-          
+
           // Process the deferred deeplink URL
           if (uri) {
             // Extract URL string from the object if it's an object
@@ -186,7 +215,7 @@ const App = () => {
             } else if (typeof uri === 'string') {
               urlString = uri;
             }
-            
+
             // Check if it's a cake-related URL
             if (urlString && urlString.includes('product_id') && urlString.includes('quantity')) {
               console.log("Cake deeplink detected, processing...");
@@ -200,8 +229,8 @@ const App = () => {
         trackierConfig.setFacebookAppId("FbTest123");  // For Android Only
         trackierConfig.setAndroidId("AndroidTest123");  // For Android only
         trackierConfig.setAppSecret(SECRETKEY, SECRETID);
-        
-       //  Get Apple Ads token before initializing SDK
+
+        //  Get Apple Ads token before initializing SDK
         try {
           const appleAdsToken = await getAppleAdsToken();
           if (appleAdsToken) {
@@ -214,7 +243,7 @@ const App = () => {
         } catch (tokenError) {
           console.log('Error handling Apple Ads token:', tokenError);
         }
-        
+
         TrackierSDK.setUserId("89992839923927");
         TrackierSDK.setUserEmail("satyam@trackier.com");
         TrackierSDK.setUserName("Satyam_React");
@@ -224,7 +253,7 @@ const App = () => {
         try {
           TrackierSDK.initialize(trackierConfig);
           console.log('Trackier SDK initialized successfully');
-          
+
           // Parse deep link after SDK initialization
           TrackierSDK.parseDeepLink("https://trackier58.u9ilnk.me/d/g5Hizea0AX");
         } catch (sdkError) {
@@ -241,7 +270,16 @@ const App = () => {
             console.log('Error initializing FCM:', fcmError);
           }
         }
-        
+
+        // Initialize APNS after SDK initialization on iOS
+        if (Platform.OS === 'ios') {
+          try {
+            await initializeAPNS();
+          } catch (apnsError) {
+            console.log('Error initializing APNS:', apnsError);
+          }
+        }
+
         // Mark initialization as complete
         setInitializing(false);
       } catch (error) {
@@ -292,7 +330,7 @@ const App = () => {
     if (url) {
       try {
         console.log(" Processing deep link URL:", url);
-        
+
         // Parse query parameters using query-string
         const parsedParams = queryString.parseUrl(url).query;
         console.log(" Parsed parameters:", parsedParams);
@@ -334,9 +372,9 @@ const App = () => {
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName={initializing ? "Splash" : "Home"}>
         <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
-                  <Stack.Screen name="Home">
-            {props => <HomeScreen {...props} deferredDeeplinkUri={deferredDeeplinkUri} />}
-          </Stack.Screen>
+        <Stack.Screen name="Home">
+          {props => <HomeScreen {...props} deferredDeeplinkUri={deferredDeeplinkUri} />}
+        </Stack.Screen>
         <Stack.Screen name="Details" component={DetailsScreen} />
         <Stack.Screen name="BuiltInEvent" component={BuildInEvent} />
         <Stack.Screen name="CustomEvent" component={CustomEvent} />
@@ -344,7 +382,7 @@ const App = () => {
         <Stack.Screen name="AddtoCart" component={AddtoCart} />
         <Stack.Screen name="DeepLinkScreen" component={DeepLinkScreen} />
         <Stack.Screen name="DynamicLinkScreen" component={DynamicLinkScreen} />
-                  <Stack.Screen name="CakeScreen" component={CakeScreen} />
+        <Stack.Screen name="CakeScreen" component={CakeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
