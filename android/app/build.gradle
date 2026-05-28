@@ -26,7 +26,7 @@ react {
 
     /* Bundling */
     //   A list containing the node command and its flags. Default is just 'node'.
-    // nodeExecutableAndArgs = ["node"]
+    nodeExecutableAndArgs = ["/Users/satyamjha/.local/bin/node"]
     //
     //   The command to run when bundling. By default is 'bundle'
     // bundleCommand = "ram-bundle"
@@ -78,14 +78,19 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.trackier.vistmarket"
+    namespace "com.apptrove.reactmarket"
     defaultConfig {
-        applicationId "com.trackier.vistmarket"
+        applicationId "com.apptrove.reactmarket"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "13.0"
+        versionName "1.0.0"
     }
+    
+    // Add vector icons fonts
+    project.ext.vectoricons = [
+        iconFontNames: [ 'Ionicons.ttf' ]
+    ]
     signingConfigs {
         debug {
             storeFile file('debug.keystore')

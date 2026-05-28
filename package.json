@@ -1,6 +1,6 @@
 {
-  "name": "React_Simulator",
-  "version": "13.0",
+  "name": "ReactMarket",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "android": "PATH=\"/Users/satyamjha/.local/bin:$PATH\" react-native run-android",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.4",
+    "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-native-clipboard/clipboard": "^1.15.0",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-native-firebase/app": "^23.5.0",
@@ -23,6 +24,7 @@
     "path-browserify": "^1.0.1",
     "react": "18.3.1",
     "react-native": "0.76.5",
+    "react-native-apptrove": "^2.0.1",
     "react-native-attribution-token": "^1.0.5",
     "react-native-dotenv": "^3.4.11",
     "react-native-gesture-handler": "^2.21.2",
@@ -32,7 +34,6 @@
     "react-native-safe-area-context": "^5.0.0",
     "react-native-screens": "^4.4.0",
     "react-native-toast-message": "^2.3.3",
-    "react-native-trackier": "^1.6.79",
     "react-native-vector-icons": "^10.2.0"
   },
   "devDependencies": {

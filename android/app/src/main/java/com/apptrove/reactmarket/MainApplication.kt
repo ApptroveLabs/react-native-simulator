@@ -1,4 +1,4 @@
-package com.trackier.vistmarket
+package com.apptrove.reactmarket
 
 import android.app.Application
 import com.facebook.react.PackageList

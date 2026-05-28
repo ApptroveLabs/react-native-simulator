@@ -2,33 +2,37 @@ import React, { useEffect, useState, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Linking, Platform } from 'react-native';
-import { TrackierConfig, TrackierSDK } from 'react-native-trackier';
+import { ApptroveConfig, ApptroveSDK } from 'react-native-apptrove';
 import { getAttributionToken } from 'react-native-attribution-token';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import messaging from '@react-native-firebase/messaging';
 import { getApp, getApps } from '@react-native-firebase/app';
 import queryString from 'query-string';
-import { TRDEVKEY, SECRETID, SECRETKEY } from 'react-native-dotenv';
+import { TRDEVKEY } from 'react-native-dotenv';
+
+// Import the Cart Provider context
+import { CartProvider } from './data/CartManager';
+// Import the Wishlist Provider context
+import { WishlistProvider } from './data/WishlistManager';
 
 // Import the screens
 import SplashScreen from './Screens/Splash';
 import HomeScreen from './Screens/HomeScreen';
-import DetailsScreen from './Screens/DetailsScreen';
-import BuildInEvent from './Screens/BuildInEvent';
-import CustomEvent from './Screens/Customevent';
-import ProductPage from './Screens/ProductPage';
 import AddtoCart from './Screens/AddtoCartScreen';
-import CakeScreen from './Screens/CakeScreen';
-import DeepLinkScreen from './Screens/DeepLinkScreen'
-import DynamicLinkScreen from './Screens/DynamicLinkScreen'
+
+// E-commerce screens
+import OnboardingScreen from './Screens/OnboardingScreen';
+import LoginScreen from './Screens/LoginScreen';
+import SignupScreen from './Screens/SignupScreen';
+import ProductDetailScreen from './Screens/ProductDetailScreen';
+import WishlistScreen from './Screens/WishlistScreen';
+import OrderConfirmationScreen from './Screens/OrderConfirmationScreen';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   const navigationRef = useRef(null);
   const [initializing, setInitializing] = useState(true);
-  const [deepLinkParams, setDeepLinkParams] = useState(null);
-  const [navigateToCake, setNavigateToCake] = useState(false);
   const [deferredDeeplinkUri, setDeferredDeeplinkUri] = useState(null);
 
   // Initialize FCM - Android only, send token to Trackier on refresh
@@ -54,7 +58,7 @@ const App = () => {
       if (enabled) {
         messagingInstance.onTokenRefresh((newToken) => {
           console.log('FCM token refreshed:', newToken);
-          TrackierSDK.sendFcmToken(newToken);
+          ApptroveSDK.sendFcmToken(newToken);
         });
       }
     } catch (error) {
@@ -82,8 +86,8 @@ const App = () => {
         const apnsToken = await messaging().getAPNSToken();
         if (apnsToken) {
           console.log('APN Token retrieved successfully:', apnsToken);
-          TrackierSDK.sendAPNToken(apnsToken);
-          console.log('APN Token sent to Trackier SDK');
+          ApptroveSDK.sendAPNToken(apnsToken);
+          console.log('APN Token sent to AppTrove SDK');
         } else {
           console.log('APN Token is null (may be normal if push notifications are not configured yet)');
         }
@@ -165,10 +169,8 @@ const App = () => {
     const initializeSDK = async () => {
       try {
         console.log('TRDEVKEY:', TRDEVKEY);
-        console.log('SECRETID:', SECRETID);
-        console.log('SECRETKEY:', SECRETKEY);
-        if (!TRDEVKEY || !SECRETID || !SECRETKEY) {
-          console.error('Trackier SDK credentials are missing! Please check your .env file.');
+        if (!TRDEVKEY) {
+          console.error('AppTrove SDK credentials are missing! Please check your .env file.');
           setInitializing(false);
           return;
         }
@@ -180,8 +182,8 @@ const App = () => {
             await requestATTPermission();
             // Wait for ATT user authorization with 20 second timeout
             console.log('Waiting for ATT user authorization (20 seconds timeout)...');
-            if (TrackierSDK && typeof TrackierSDK.waitForATTUserAuthorization === 'function') {
-              TrackierSDK.waitForATTUserAuthorization(20);
+            if (ApptroveSDK && typeof ApptroveSDK.waitForATTUserAuthorization === 'function') {
+              ApptroveSDK.waitForATTUserAuthorization(20);
               console.log('ATT wait completed');
             } else {
               console.log('waitForATTUserAuthorization method not available');
@@ -192,12 +194,12 @@ const App = () => {
           }
         }
 
-        const trackierConfig = new TrackierConfig(
+        const apptroveConfig = new ApptroveConfig(
           TRDEVKEY,
-          TrackierConfig.EnvironmentDevelopment
+          ApptroveConfig.EnvironmentTesting
         );
 
-        trackierConfig.setDeferredDeeplinkCallbackListener(function (uri) {
+        apptroveConfig.setDeferredDeeplinkCallbackListener(function (uri) {
           console.log("Deferred Deeplink Callback received");
           console.log("URL:", uri);
 
@@ -216,27 +218,24 @@ const App = () => {
               urlString = uri;
             }
 
-            // Check if it's a cake-related URL
-            if (urlString && urlString.includes('product_id') && urlString.includes('quantity')) {
-              console.log("Cake deeplink detected, processing...");
+            // Process the deeplink
+            if (urlString) {
+              console.log("Processing deferred deeplink:", urlString);
               handleDeepLink({ url: urlString });
-            } else {
-              console.log("Non-cake deeplink received:", urlString);
             }
           }
         });
 
-        trackierConfig.setFacebookAppId("FbTest123");  // For Android Only
-        trackierConfig.setAndroidId("AndroidTest123");  // For Android only
-        trackierConfig.setAppSecret(SECRETKEY, SECRETID);
+        apptroveConfig.setFacebookAppId("FbTest123");  // For Android Only
+        apptroveConfig.setAndroidId("AndroidTest123");  // For Android only
 
-        //  Get Apple Ads token before initializing SDK
+        // Get Apple Ads token before initializing SDK
         try {
           const appleAdsToken = await getAppleAdsToken();
           if (appleAdsToken) {
-            console.log('Updating Trackier with Apple Ads token...');
-            TrackierSDK.updateAppleAdsToken(appleAdsToken);
-            console.log('Apple Ads token updated in Trackier SDK');
+            console.log('Updating AppTrove with Apple Ads token...');
+            ApptroveSDK.updateAppleAdsToken(appleAdsToken);
+            console.log('Apple Ads token updated in AppTrove SDK');
           } else {
             console.log('No Apple Ads token to update (normal for simulator or Android)');
           }
@@ -244,21 +243,20 @@ const App = () => {
           console.log('Error handling Apple Ads token:', tokenError);
         }
 
-        TrackierSDK.setUserId("89992839923927");
-        TrackierSDK.setUserEmail("satyam@trackier.com");
-        TrackierSDK.setUserName("Satyam_React");
-        TrackierSDK.setUserPhone("8252786831");
+        ApptroveSDK.setUserId("89992839923927");
+        ApptroveSDK.setUserEmail("satyam@trackier.com");
+        ApptroveSDK.setUserName("Satyam_React");
+        ApptroveSDK.setUserPhone("8252786831");
 
-        // Initialize Trackier SDK
+        // Initialize AppTrove SDK
         try {
-          TrackierSDK.initialize(trackierConfig);
-          console.log('Trackier SDK initialized successfully');
+          ApptroveSDK.initialize(apptroveConfig);
+          console.log('AppTrove SDK initialized successfully');
 
           // Parse deep link after SDK initialization
-          TrackierSDK.parseDeepLink("https://trackier58.u9ilnk.me/d/g5Hizea0AX");
+          ApptroveSDK.parseDeepLink("https://trackier58.u9ilnk.me/d/g5Hizea0AX");
         } catch (sdkError) {
-          console.error('Error initializing Trackier SDK:', sdkError);
-          // Continue with app initialization even if Trackier fails
+          console.error('Error initializing AppTrove SDK:', sdkError);
         }
 
         // Initialize FCM after SDK initialization (important: SDK must be ready first)
@@ -290,7 +288,6 @@ const App = () => {
 
     initializeSDK();
 
-
     // Deep link listener
     const deepLinkListener = Linking.addEventListener('url', handleDeepLink);
 
@@ -300,7 +297,7 @@ const App = () => {
         const initialUrl = await Linking.getInitialURL();
         if (initialUrl) {
           handleDeepLink({ url: initialUrl });
-          TrackierSDK.parseDeepLink(initialUrl);
+          ApptroveSDK.parseDeepLink(initialUrl);
         }
       } catch (error) {
         console.debug('Error fetching initial URL:', error);
@@ -317,74 +314,72 @@ const App = () => {
     };
   }, []);
 
-  // Effect to handle navigation to CakeScreen
-  useEffect(() => {
-    if (navigateToCake && deepLinkParams && navigationRef.current) {
-      console.log(" Navigating to CakeScreen...");
-      navigationRef.current.navigate('CakeScreen', deepLinkParams);
-      setNavigateToCake(false); // Reset the flag
-    }
-  }, [navigateToCake, deepLinkParams]);
-
   const handleDeepLink = ({ url }) => {
     if (url) {
       try {
-        console.log(" Processing deep link URL:", url);
+        console.log("Processing deep link URL:", url);
 
         // Parse query parameters using query-string
         const parsedParams = queryString.parseUrl(url).query;
-        console.log(" Parsed parameters:", parsedParams);
+        console.log("Parsed parameters:", parsedParams);
 
-        const productId = parsedParams.product_id || 'default';
-        const quantity = parsedParams.quantity || 1;
-        const actionData = parsedParams.actionData || 'noAction';
-        const dlv = parsedParams.dlv || 'noDelivery';
-
-        console.log(" Cake parameters detected:");
-        console.log("  - Product ID:", productId);
-        console.log("  - Quantity:", quantity);
-        console.log("  - Action Data:", actionData);
-        console.log("  - DLV:", dlv);
-
-        setDeepLinkParams({
-          product_id: productId,
-          quantity: quantity,
-          actionData: actionData,
-          dlv: dlv,
-          deferredDeeplinkUri: deferredDeeplinkUri,
-        });
-
-        console.log("Setting navigation to CakeScreen...");
-        setNavigateToCake(true); // Trigger navigation to CakeScreen
+        // Check if it's a product deeplink
+        if (parsedParams.product_id) {
+          const productId = parseInt(parsedParams.product_id);
+          console.log("Product deeplink detected, product ID:", productId);
+          
+          // Navigate to product detail if navigation is ready
+          if (navigationRef.current) {
+            // Import products to find the product
+            const { products } = require('./data/products');
+            const product = products.find(p => p.id === productId);
+            
+            if (product) {
+              console.log("Navigating to product:", product.name);
+              navigationRef.current.navigate('ProductDetail', { product });
+            } else {
+              console.log("Product not found with ID:", productId);
+              navigationRef.current.navigate('Home');
+            }
+          }
+        } else {
+          console.log("No product_id found in deeplink, navigating to Home");
+          if (navigationRef.current) {
+            navigationRef.current.navigate('Home');
+          }
+        }
 
         console.log("Deep link processed successfully");
       } catch (error) {
-        console.error(" Error parsing deep link:", error);
-        setDeepLinkParams(null); // Reset on error
+        console.error("Error parsing deep link:", error);
       }
     } else {
       console.log("No URL provided to handleDeepLink");
-      setDeepLinkParams(null);
     }
   };
 
   return (
-    <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator initialRouteName={initializing ? "Splash" : "Home"}>
-        <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Home">
-          {props => <HomeScreen {...props} deferredDeeplinkUri={deferredDeeplinkUri} />}
-        </Stack.Screen>
-        <Stack.Screen name="Details" component={DetailsScreen} />
-        <Stack.Screen name="BuiltInEvent" component={BuildInEvent} />
-        <Stack.Screen name="CustomEvent" component={CustomEvent} />
-        <Stack.Screen name="ProductPage" component={ProductPage} />
-        <Stack.Screen name="AddtoCart" component={AddtoCart} />
-        <Stack.Screen name="DeepLinkScreen" component={DeepLinkScreen} />
-        <Stack.Screen name="DynamicLinkScreen" component={DynamicLinkScreen} />
-        <Stack.Screen name="CakeScreen" component={CakeScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <CartProvider>
+      <WishlistProvider>
+        <NavigationContainer ref={navigationRef}>
+        <Stack.Navigator initialRouteName="Splash">
+          <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
+          
+          <Stack.Screen name="Home" options={{ headerShown: false }}>
+            {props => <HomeScreen {...props} deferredDeeplinkUri={deferredDeeplinkUri} />}
+          </Stack.Screen>
+          
+          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="AddtoCart" component={AddtoCart} options={{ headerShown: false }} />
+          <Stack.Screen name="Wishlist" component={WishlistScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ headerShown: false }} />
+        </Stack.Navigator>
+      </NavigationContainer>
+      </WishlistProvider>
+    </CartProvider>
   );
 };
 

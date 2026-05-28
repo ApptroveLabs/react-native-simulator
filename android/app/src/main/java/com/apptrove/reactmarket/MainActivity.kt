@@ -1,4 +1,4 @@
-package com.trackier.vistmarket
+package com.apptrove.reactmarket
 
 import android.content.Intent
 import android.net.Uri
@@ -12,7 +12,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 class MainActivity : ReactActivity() {
 
     override fun getMainComponentName(): String {
-        return "React_Simulator"
+        return "ReactMarket"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

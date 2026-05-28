@@ -22,15 +22,16 @@
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        
+        <!-- Trackier Deep Link Configuration - Same as Flutter/Cordova apps -->
+        <intent-filter android:autoVerify="true">
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
-
-            <!-- Add your deep link configurations -->
-
-            <!-- App Link -->
+            <!-- Trackier Universal Link -->
             <data
-                android:host="trackier.u9ilnk.me"
+                android:host="trackier58.u9ilnk.me"
                 android:pathPrefix="/d"
                 android:scheme="https" />
         </intent-filter>

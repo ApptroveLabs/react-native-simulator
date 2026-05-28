@@ -5,29 +5,25 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  Image
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'; // Ensure you have the react-native-vector-icons installed
+import Icon from 'react-native-vector-icons/Ionicons';
 import { TrackierEvent, TrackierSDK } from 'react-native-trackier';
-import { Snackbar } from 'react-native-paper'; // Import Snackbar
+import { Snackbar } from 'react-native-paper';
 
-
-const CustomEventScreen = () => {
+const CustomEventScreen = ({ navigation }) => {
   const [eventId, setEventId] = useState('');
   const [revenue, setRevenue] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState(null);
   const [params, setParams] = useState([]);
   const [paramValues, setParamValues] = useState({});
   const [currencyDropdownVisible, setCurrencyDropdownVisible] = useState(false);
-  const [snackbarVisible, setSnackbarVisible] = useState(false); // State to control Snackbar visibility
-  const [snackbarMessage, setSnackbarMessage] = useState(''); // Snackbar message
-
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const currencyList = [
     "USD", "EUR", "GBP", "INR", "AUD", "CAD", "SGD", "CHF", "MYR", "JPY",
@@ -44,7 +40,7 @@ const CustomEventScreen = () => {
       setParams([...params, newParamKey]);
     } else {
       setSnackbarMessage('You can only add up to 10 parameters.');
-      setSnackbarVisible(true);    
+      setSnackbarVisible(true);
     }
   };
 
@@ -70,7 +66,7 @@ const CustomEventScreen = () => {
     const revenueValue = parseFloat(revenue);
     if (isNaN(revenueValue)) {
       setSnackbarMessage('Revenue must be a valid number.');
-      setSnackbarVisible(true); 
+      setSnackbarVisible(true);
       return;
     }
 
@@ -94,108 +90,127 @@ const CustomEventScreen = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
+      style={styles.mainContainer}
     >
+      {/* Top Header Row */}
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation && navigation.goBack()}
+        >
+          <Icon name="arrow-back" size={24} color="#0f172a" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Custom Events</Text>
+        <View style={{ width: 24 }} />
+      </View>
+
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Text style={styles.header}>Custom Event Tracking</Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+          <View style={styles.formCard}>
+            <Text style={styles.formTitle}>Simulate Custom Event</Text>
 
-          {/* Event ID Input */}
-          <TextInput
-            style={styles.input}
-            placeholder="Enter Event ID"
-            placeholderTextColor="#888"
-            value={eventId}
-            onChangeText={setEventId}
-          />
+            {/* Event ID Input */}
+            <Text style={styles.fieldLabel}>Event ID *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. event_purchase_click"
+              placeholderTextColor="#94a3b8"
+              value={eventId}
+              onChangeText={setEventId}
+            />
 
-          {/* Revenue Input */}
-          <TextInput
-            style={[styles.input, styles.revenueInput]}
-            placeholder="Enter Revenue"
-            placeholderTextColor="#888"
-            keyboardType="numeric"
-            value={revenue}
-            onChangeText={setRevenue}
-          />
+            {/* Revenue Input */}
+            <Text style={styles.fieldLabel}>Event Revenue *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. 50.00"
+              placeholderTextColor="#94a3b8"
+              keyboardType="numeric"
+              value={revenue}
+              onChangeText={setRevenue}
+            />
 
-          {/* Currency Dropdown */}
-          <TouchableOpacity
-            style={styles.dropdown}
-            onPress={() => setCurrencyDropdownVisible(!currencyDropdownVisible)}
-          >
-            <View style={styles.dropdownContent}>
-              <Text style={styles.dropdownText}>
-                {selectedCurrency || 'Select Currency'}
-              </Text>
-              <Icon
-                name={currencyDropdownVisible ? 'chevron-up' : 'chevron-down'}
-                size={20}
-                color="#333"
-              />
-            </View>
-          </TouchableOpacity>
-          {currencyDropdownVisible && (
-            <View style={styles.dropdownList}>
-              <ScrollView style={{ maxHeight: 200 }}>
-                {currencyList.map((currency, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.dropdownItem}
-                    onPress={() => {
-                      setSelectedCurrency(currency);
-                      setCurrencyDropdownVisible(false);
-                    }}
-                  >
-                    <Text>{currency}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
-
-          {/* Parameters */}
-          {params.map((paramKey, index) => (
-            <View key={index} style={styles.paramContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder={`Param ${index + 1}`}
-                placeholderTextColor="#888"
-                value={paramValues[paramKey] || ''}
-                onChangeText={(value) => handleParamChange(paramKey, value)}
-              />
-              <View style={styles.deleteContainer}>
-                <Text style={styles.deleteText}>Delete Param {index + 1}</Text>
-                <TouchableOpacity onPress={() => deleteParam(index)} style={styles.deleteButton}>
-                  <Image
-                    source={require('../assets/remove.png')} // Ensure the path matches your project
-                    style={styles.deleteIcon}
-                  />
-                </TouchableOpacity>
+            {/* Currency Dropdown */}
+            <Text style={styles.fieldLabel}>Currency *</Text>
+            <TouchableOpacity
+              style={styles.dropdown}
+              onPress={() => setCurrencyDropdownVisible(!currencyDropdownVisible)}
+            >
+              <View style={styles.dropdownContent}>
+                <Text style={[styles.dropdownText, !selectedCurrency && styles.placeholderText]}>
+                  {selectedCurrency || 'Select Currency'}
+                </Text>
+                <Icon
+                  name={currencyDropdownVisible ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color="#64748b"
+                />
               </View>
-            </View>
-          ))}
+            </TouchableOpacity>
+            {currencyDropdownVisible && (
+              <View style={styles.dropdownList}>
+                <ScrollView style={{ maxHeight: 150 }} nestedScrollEnabled>
+                  {currencyList.map((currency, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        setSelectedCurrency(currency);
+                        setCurrencyDropdownVisible(false);
+                      }}
+                    >
+                      <Text style={styles.itemText}>{currency}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
 
-          {/* Add Parameter Button */}
-          <TouchableOpacity style={styles.addButton} onPress={addParam}>
-            <Text style={styles.buttonText}>Add Parameter</Text>
-          </TouchableOpacity>
+            {/* Parameters header */}
+            {params.length > 0 && <Text style={styles.paramsHeader}>Custom Parameters</Text>}
 
-          {/* Submit Button */}
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Submit Event</Text>
-          </TouchableOpacity>
+            {/* Parameter Fields List */}
+            {params.map((paramKey, index) => (
+              <View key={index} style={styles.paramContainer}>
+                <View style={styles.paramInputRow}>
+                  <TextInput
+                    style={[styles.input, styles.paramInput]}
+                    placeholder={`Param ${index + 1} Value`}
+                    placeholderTextColor="#94a3b8"
+                    value={paramValues[paramKey] || ''}
+                    onChangeText={(value) => handleParamChange(paramKey, value)}
+                  />
+                  <TouchableOpacity onPress={() => deleteParam(index)} style={styles.deleteButton}>
+                    <Icon name="trash-outline" size={20} color="#ef4444" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+
+            {/* Action Buttons */}
+            <TouchableOpacity style={styles.addButton} onPress={addParam}>
+              <Icon name="add-circle-outline" size={20} color="#4f46e5" style={styles.btnIcon} />
+              <Text style={styles.addButtonText}>Add Custom Parameter</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+              <Icon name="send-outline" size={18} color="#fff" style={styles.btnIcon} />
+              <Text style={styles.submitButtonText}>Track Event Now</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </TouchableWithoutFeedback>
 
-      {/* Snackbar */}
+      {/* Snackbar notification */}
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
         duration={Snackbar.DURATION_SHORT}
+        style={styles.snackbar}
         action={{
-          label: 'Close',
+          label: 'OK',
           onPress: () => setSnackbarVisible(false),
+          textColor: '#6366f1',
         }}
       >
         {snackbarMessage}
@@ -205,38 +220,67 @@ const CustomEventScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8fafc', // Slate 50
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    height: 70,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+    paddingTop: 10,
+  },
+  backButton: {
+    padding: 5,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#0f172a',
+    letterSpacing: 0.5,
   },
   scrollContainer: {
-    padding: 20,
+    padding: 16,
+    paddingBottom: 40,
   },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  formCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    padding: 20,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.03,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  formTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1e293b',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
     marginBottom: 20,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 15,
-    marginBottom: 10,
-    fontSize: 16,
-    backgroundColor: '#fff',
-  },
-  revenueInput: {
-    color: '#000',
+  fieldLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#475569',
+    marginBottom: 6,
   },
   dropdown: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 15,
-    marginBottom: 20,
+    borderColor: '#cbd5e1',
+    borderRadius: 12,
+    padding: 14,
     backgroundColor: '#fff',
+    marginBottom: 16,
   },
   dropdownContent: {
     flexDirection: 'row',
@@ -244,56 +288,122 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dropdownText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 14,
+    color: '#0f172a',
+    fontWeight: '600',
+  },
+  placeholderText: {
+    color: '#94a3b8',
+    fontWeight: '500',
   },
   dropdownList: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
     backgroundColor: '#fff',
-    marginTop: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    marginTop: -10,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
+    overflow: 'hidden',
   },
   dropdownItem: {
-    padding: 10,
+    padding: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  itemText: {
+    fontSize: 14,
+    color: '#334155',
+    fontWeight: '600',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 14,
+    color: '#0f172a',
+    fontWeight: '600',
+    backgroundColor: '#fff',
+    marginBottom: 16,
+  },
+  paramsHeader: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0f172a',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginTop: 10,
+    marginBottom: 12,
   },
   paramContainer: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
-  deleteContainer: {
+  paramInputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
   },
-  deleteText: {
-    fontSize: 14,
-    color: '#ff0000',
-    marginRight: 5,
+  paramInput: {
+    flex: 1,
+    marginBottom: 0,
   },
   deleteButton: {
-    padding: 5,
-  },
-  deleteIcon: {
-    width: 20,
-    height: 20,
+    marginLeft: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#fca5a5',
+    backgroundColor: '#fef2f2',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   addButton: {
-    backgroundColor: '#007bff',
-    padding: 15,
-    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#4f46e5',
+    borderRadius: 16,
+    flexDirection: 'row',
+    paddingVertical: 14,
     alignItems: 'center',
-    marginBottom: 20,
+    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom: 16,
+  },
+  addButtonText: {
+    color: '#4f46e5',
+    fontSize: 14,
+    fontWeight: '800',
   },
   submitButton: {
-    backgroundColor: 'green',
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: '#4f46e5',
+    borderRadius: 16,
+    flexDirection: 'row',
+    paddingVertical: 15,
     alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#4f46e5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  buttonText: {
+  submitButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  btnIcon: {
+    marginRight: 6,
+  },
+  snackbar: {
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
   },
 });
 
 export default CustomEventScreen;
+

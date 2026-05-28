@@ -1,5 +1,9 @@
 PODS:
   - Alamofire (5.9.1)
+  - apptrove-ios-sdk (2.0.1):
+    - Alamofire (~> 5.9.0)
+    - CryptoSwift (~> 1.4.1)
+    - Willow (~> 5.0)
   - boost (1.84.0)
   - CryptoSwift (1.4.3)
   - DoubleConversion (1.1.6)
@@ -1320,6 +1324,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-apptrove (2.0.1):
+    - apptrove-ios-sdk (= 2.0.1)
+    - React
   - react-native-attribution-token (1.0.5):
     - DoubleConversion
     - glog
@@ -1343,9 +1350,6 @@ PODS:
     - Yoga
   - react-native-safe-area-context (5.0.0):
     - React-Core
-  - react-native-trackier (1.6.79):
-    - React
-    - trackier-ios-sdk (= 1.6.76)
   - React-nativeconfig (0.76.5)
   - React-NativeModulesApple (0.76.5):
     - glog
@@ -1613,6 +1617,8 @@ PODS:
     - React-logger (= 0.76.5)
     - React-perflogger (= 0.76.5)
     - React-utils (= 0.76.5)
+  - RNCAsyncStorage (1.24.0):
+    - React-Core
   - RNCClipboard (1.15.0):
     - React-Core
   - RNCMaskedView (0.1.11):
@@ -1779,10 +1785,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SocketRocket (0.7.1)
-  - trackier-ios-sdk (1.6.76):
-    - Alamofire (~> 5.9.0)
-    - CryptoSwift (~> 1.4.1)
-    - Willow (~> 5.0)
   - Willow (5.2.1)
   - Yoga (0.0.0)
 
@@ -1833,9 +1835,9 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - react-native-apptrove (from `../node_modules/react-native-apptrove`)
   - react-native-attribution-token (from `../node_modules/react-native-attribution-token`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - react-native-trackier (from `../node_modules/react-native-trackier`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -1863,6 +1865,7 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
@@ -1877,6 +1880,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Alamofire
+    - apptrove-ios-sdk
     - CryptoSwift
     - Firebase
     - FirebaseCore
@@ -1889,7 +1893,6 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - SocketRocket
-    - trackier-ios-sdk
     - Willow
 
 EXTERNAL SOURCES:
@@ -1964,12 +1967,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-apptrove:
+    :path: "../node_modules/react-native-apptrove"
   react-native-attribution-token:
     :path: "../node_modules/react-native-attribution-token"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-trackier:
-    :path: "../node_modules/react-native-trackier"
   React-nativeconfig:
     :path: "../node_modules/react-native/ReactCommon"
   React-NativeModulesApple:
@@ -2024,6 +2027,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
   RNCMaskedView:
@@ -2047,6 +2052,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
+  apptrove-ios-sdk: d9d20470bcf8fe31b91c6d593dc15593ac906c5d
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
   CryptoSwift: a0799ee936271bd2253a006f1e4523df21845000
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
@@ -2093,9 +2099,9 @@ SPEC CHECKSUMS:
   React-logger: ae95f0effa7e1791bd6f7283caddca323d4fbc1e
   React-Mapbuffer: 7eb5d69e1154e7743487ef0c8d7261e5b59afb32
   React-microtasksnativemodule: 16e31e4f503a5f46adafd035096130418c3bce70
+  react-native-apptrove: e99c998801df9d62ef0f0f97f7ac5076cf33d0a1
   react-native-attribution-token: e2cc8f3927152e2323cb714b9d5612c18d2e8ec4
   react-native-safe-area-context: 314537f8fca6fe2c06bd53fc8905efa9e6aaaf59
-  react-native-trackier: ca6119ca63f7f3a47590aaf84d0d7c71f44972a7
   React-nativeconfig: f7ab6c152e780b99a8c17448f2d99cf5f69a2311
   React-NativeModulesApple: 9aeb901b9bfcc9235e912445fb3cf4780a99baf4
   React-perflogger: 16e049953d21b37e9871ddf0b02f414e12ff14ba
@@ -2123,6 +2129,7 @@ SPEC CHECKSUMS:
   React-utils: f584a494ac233c7857bab176416b0c49cb4037ba
   ReactCodegen: 3a68408bf68d0957abcd13d610f76420005c1d91
   ReactCommon: 5809a8ee421b7219221a475b78180f8f34b5c5ec
+  RNCAsyncStorage: b6410dead2732b5c72a7fdb1ecb5651bbcf4674b
   RNCClipboard: dbcf25b8f666b4685c02eeb65be981d30198e505
   RNCMaskedView: 4c5ee1c8667d56077246cc6d1977f77393923560
   RNFBApp: 255fa19a91d6c1309e021ee75d5d209754e5961b
@@ -2133,7 +2140,6 @@ SPEC CHECKSUMS:
   RNScreens: 4a5ab20b324ed1e3fe3862796b8f8e0a6208c415
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  trackier-ios-sdk: 93d333094e2130158750ebffc75054706f95b501
   Willow: a6310f9aedcb6f4de8c35b94fd3416a660ae9280
   Yoga: fcc198acd4a55599b3468cfb6ebc526baff5f06e
 
