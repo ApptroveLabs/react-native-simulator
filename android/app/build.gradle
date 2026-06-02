@@ -83,8 +83,14 @@ android {
         applicationId "com.apptrove.reactmarket"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 4
+        versionName "1.0.3"
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
     
     // Add vector icons fonts
@@ -98,15 +104,19 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            storeFile file('my-release-key.keystore')
+            storePassword 'myreleasekeypass'
+            keyAlias 'my-key-alias'
+            keyPassword 'myreleasekeypass'
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -128,4 +138,19 @@ dependencies {
     
     // Google Play Install Referrer for attribution tracking
     implementation 'com.android.installreferrer:installreferrer:2.2'
+}
+
+tasks.configureEach { task ->
+    if (task.name == 'stripReleaseDebugSymbols') {
+        task.finalizedBy 'patchElfAlignmentFor16Kb'
+    }
+}
+
+task patchElfAlignmentFor16Kb {
+    doLast {
+        println "Patching ELF files for 16 KB page-size compliance..."
+        exec {
+            commandLine 'python3', "${project.rootDir}/patch_intermediates_elf.py"
+        }
+    }
 }
