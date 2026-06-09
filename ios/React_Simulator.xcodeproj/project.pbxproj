@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		306BB3822F238DDB0087643D /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306BB3812F238DDB0087643D /* dummy.swift */; };
 		00E356F31AD99517003FC87E /* React_SimulatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* React_SimulatorTests.m */; };
 		099EB87BAD0B45FD50B74DC0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		0C80B921A6F3F58F76C31292 /* libPods-React_Simulator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-React_Simulator.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		306BB3822F238DDB0087643D /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306BB3812F238DDB0087643D /* dummy.swift */; };
+		30B424352FD7E770001E2904 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306BB3812F238DDB0087643D /* dummy.swift */; };
 		7699B88040F8A987B510C191 /* libPods-React_Simulator-React_SimulatorTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-React_Simulator-React_SimulatorTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
@@ -29,7 +30,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		306BB3812F238DDB0087643D /* dummy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = dummy.swift; path = React_Simulator/dummy.swift; sourceTree = "<group>"; };
 		00E356EE1AD99517003FC87E /* React_SimulatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = React_SimulatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* React_SimulatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = React_SimulatorTests.m; sourceTree = "<group>"; };
@@ -42,6 +42,7 @@
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = React_Simulator/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-React_Simulator-React_SimulatorTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-React_Simulator-React_SimulatorTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		306BB3802F238DDB0087643D /* React_Simulator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = React_Simulator.entitlements; path = React_Simulator/React_Simulator.entitlements; sourceTree = "<group>"; };
+		306BB3812F238DDB0087643D /* dummy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = dummy.swift; path = React_Simulator/dummy.swift; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-React_Simulator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-React_Simulator.debug.xcconfig"; path = "Target Support Files/Pods-React_Simulator/Pods-React_Simulator.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-React_Simulator.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-React_Simulator.release.xcconfig"; path = "Target Support Files/Pods-React_Simulator/Pods-React_Simulator.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-React_Simulator-React_SimulatorTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-React_Simulator-React_SimulatorTests.debug.xcconfig"; path = "Target Support Files/Pods-React_Simulator-React_SimulatorTests/Pods-React_Simulator-React_SimulatorTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -407,7 +408,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				306BB3822F238DDB0087643D /* dummy.swift in Sources */,
+				30B424352FD7E770001E2904 /* dummy.swift in Sources */,
 				00E356F31AD99517003FC87E /* React_SimulatorTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
