@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Linking, Platform } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ApptroveConfig, ApptroveSDK } from 'react-native-apptrove';
 import { getAttributionToken } from 'react-native-attribution-token';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
@@ -359,27 +360,29 @@ const App = () => {
   };
 
   return (
-    <CartProvider>
-      <WishlistProvider>
-        <NavigationContainer ref={navigationRef}>
-        <Stack.Navigator initialRouteName="Splash">
-          <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
-          
-          <Stack.Screen name="Home" options={{ headerShown: false }}>
-            {props => <HomeScreen {...props} deferredDeeplinkUri={deferredDeeplinkUri} />}
-          </Stack.Screen>
-          
-          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="AddtoCart" component={AddtoCart} options={{ headerShown: false }} />
-          <Stack.Screen name="Wishlist" component={WishlistScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ headerShown: false }} />
-        </Stack.Navigator>
-      </NavigationContainer>
-      </WishlistProvider>
-    </CartProvider>
+    <SafeAreaProvider>
+      <CartProvider>
+        <WishlistProvider>
+          <NavigationContainer ref={navigationRef}>
+          <Stack.Navigator initialRouteName="Splash">
+            <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
+            
+            <Stack.Screen name="Home" options={{ headerShown: false }}>
+              {props => <HomeScreen {...props} deferredDeeplinkUri={deferredDeeplinkUri} />}
+            </Stack.Screen>
+            
+            <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="AddtoCart" component={AddtoCart} options={{ headerShown: false }} />
+            <Stack.Screen name="Wishlist" component={WishlistScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ headerShown: false }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+        </WishlistProvider>
+      </CartProvider>
+    </SafeAreaProvider>
   );
 };
 

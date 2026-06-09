@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { ApptroveSDK, ApptroveEvent } from 'react-native-apptrove';
 import AppTroveEvents from '../data/AppTroveEvents';
@@ -151,38 +152,40 @@ const HomeScreen = ({ navigation, deferredDeeplinkUri }) => {
   return (
     <View style={styles.mainContainer}>
       {/* App Bar Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => toggleDrawer(true)} style={styles.barIcon}>
-          <Icon name="menu-outline" size={28} color="#0f172a" />
-        </TouchableOpacity>
-        
-        <Text style={styles.headerTitle}>React Market</Text>
-        
-        <View style={styles.headerIcons}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('Wishlist')}
-          >
-            <Icon name="heart-outline" size={24} color="#0f172a" />
-            {wishlistCount > 0 && (
-              <View style={styles.badgeContainer}>
-                <Text style={styles.badgeText}>{wishlistCount}</Text>
-              </View>
-            )}
+      <SafeAreaView edges={['top']} style={{ backgroundColor: '#ffffff' }}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => toggleDrawer(true)} style={styles.barIcon}>
+            <Icon name="menu-outline" size={28} color="#0f172a" />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('AddtoCart')}
-          >
-            <Icon name="cart-outline" size={24} color="#0f172a" />
-            {totalItems > 0 && (
-              <View style={styles.badgeContainer}>
-                <Text style={styles.badgeText}>{totalItems}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          
+          <Text style={styles.headerTitle}>React Market</Text>
+          
+          <View style={styles.headerIcons}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => navigation.navigate('Wishlist')}
+            >
+              <Icon name="heart-outline" size={24} color="#0f172a" />
+              {wishlistCount > 0 && (
+                <View style={styles.badgeContainer}>
+                  <Text style={styles.badgeText}>{wishlistCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => navigation.navigate('AddtoCart')}
+            >
+              <Icon name="cart-outline" size={24} color="#0f172a" />
+              {totalItems > 0 && (
+                <View style={styles.badgeContainer}>
+                  <Text style={styles.badgeText}>{totalItems}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Search Bar section */}

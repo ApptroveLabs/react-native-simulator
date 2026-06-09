@@ -78,7 +78,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.apptrove.reactmarket"
+    namespace "a"
     defaultConfig {
         applicationId "com.apptrove.reactmarket"
         minSdkVersion rootProject.ext.minSdkVersion
