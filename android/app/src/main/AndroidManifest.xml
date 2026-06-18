@@ -35,6 +35,14 @@
                 android:pathPrefix="/d"
                 android:scheme="https" />
         </intent-filter>
+
+        <!-- Custom Scheme Deep Link Configuration (e.g. reactmarket://) -->
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="reactmarket" />
+        </intent-filter>
       </activity>
 
         <meta-data
