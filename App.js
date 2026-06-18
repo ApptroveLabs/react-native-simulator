@@ -9,7 +9,7 @@ import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import messaging from '@react-native-firebase/messaging';
 import { getApp, getApps } from '@react-native-firebase/app';
 import queryString from 'query-string';
-import { TRDEVKEY } from 'react-native-dotenv';
+import { TRDEVKEY, TRDEVKEY_IOS, TRDEVKEY_ANDROID } from 'react-native-dotenv';
 
 // Import the Cart Provider context
 import { CartProvider } from './data/CartManager';
@@ -35,6 +35,7 @@ const App = () => {
   const navigationRef = useRef(null);
   const [initializing, setInitializing] = useState(true);
   const [deferredDeeplinkUri, setDeferredDeeplinkUri] = useState(null);
+  const pendingProductIdRef = useRef(null);
 
   // Initialize FCM - Android only, send token to Trackier on refresh
   const initializeFCM = async () => {
@@ -169,9 +170,10 @@ const App = () => {
   useEffect(() => {
     const initializeSDK = async () => {
       try {
-        console.log('TRDEVKEY:', TRDEVKEY);
-        if (!TRDEVKEY) {
-          console.error('AppTrove SDK credentials are missing! Please check your .env file.');
+        const devKey = Platform.OS === 'ios' ? TRDEVKEY_IOS : TRDEVKEY_ANDROID;
+
+
+        if (!devKey) {
           setInitializing(false);
           return;
         }
@@ -196,34 +198,21 @@ const App = () => {
         }
 
         const apptroveConfig = new ApptroveConfig(
-          TRDEVKEY,
-          ApptroveConfig.EnvironmentTesting
+          devKey,
+          ApptroveConfig.EnvironmentDevelopment
         );
 
-        apptroveConfig.setDeferredDeeplinkCallbackListener(function (uri) {
+        apptroveConfig.setDeferredDeeplinkCallbackListener(function (deepLinkData) {
           console.log("Deferred Deeplink Callback received");
-          console.log("URL:", uri);
+          console.log("DeepLink Data: " + JSON.stringify(deepLinkData));
+          
+          if (deepLinkData) {
+            // Store the deferred deeplink URL string
+            const urlString = typeof deepLinkData === 'string' ? deepLinkData : deepLinkData.url;
+            setDeferredDeeplinkUri(urlString || null);
 
-          // Store the deferred deeplink URI
-          setDeferredDeeplinkUri(uri);
-
-          // Process the deferred deeplink URL
-          if (uri) {
-            // Extract URL string from the object if it's an object
-            let urlString = '';
-            if (typeof uri === 'object' && uri !== null) {
-              // If it's an object, try to get the URL from common properties
-              urlString = uri.url || uri.deepLinkValue || uri.uri || JSON.stringify(uri);
-              console.log("Extracted URL string:", urlString);
-            } else if (typeof uri === 'string') {
-              urlString = uri;
-            }
-
-            // Process the deeplink
-            if (urlString) {
-              console.log("Processing deferred deeplink:", urlString);
-              handleDeepLink({ url: urlString });
-            }
+            // Process the deferred deeplink using the complete data object
+            handleDeepLink(deepLinkData);
           }
         });
 
@@ -254,8 +243,11 @@ const App = () => {
           ApptroveSDK.initialize(apptroveConfig);
           console.log('AppTrove SDK initialized successfully');
 
-          // Parse deep link after SDK initialization
-          ApptroveSDK.parseDeepLink("https://trackier58.u9ilnk.me/d/g5Hizea0AX");
+          // Call subscribeAttributionlink for iOS only after initialization
+          if (Platform.OS === 'ios') {
+            ApptroveSDK.subscribeAttributionlink();
+            console.log('AppTrove SDK subscribeAttributionlink called for iOS');
+          }
         } catch (sdkError) {
           console.error('Error initializing AppTrove SDK:', sdkError);
         }
@@ -290,14 +282,23 @@ const App = () => {
     initializeSDK();
 
     // Deep link listener
-    const deepLinkListener = Linking.addEventListener('url', handleDeepLink);
+    const deepLinkListener = Linking.addEventListener('url', (event) => {
+      if (event && event.url) {
+        console.log("Deep link event received:", event.url);
+        handleDeepLink(event.url);
+        console.log("Calling ApptroveSDK.parseDeepLink with URL:", event.url);
+        ApptroveSDK.parseDeepLink(event.url);
+      }
+    });
 
     // Check for an initial deep link when the app is first opened
     const initDeepLink = async () => {
       try {
         const initialUrl = await Linking.getInitialURL();
         if (initialUrl) {
-          handleDeepLink({ url: initialUrl });
+          console.log("Initial URL detected:", initialUrl);
+          handleDeepLink(initialUrl);
+          console.log("Calling ApptroveSDK.parseDeepLink with initial URL:", initialUrl);
           ApptroveSDK.parseDeepLink(initialUrl);
         }
       } catch (error) {
@@ -315,47 +316,101 @@ const App = () => {
     };
   }, []);
 
-  const handleDeepLink = ({ url }) => {
-    if (url) {
-      try {
-        console.log("Processing deep link URL:", url);
+  const handleDeepLink = (data) => {
+    if (!data) {
+      console.log("No deep link data provided to handleDeepLink");
+      return;
+    }
 
-        // Parse query parameters using query-string
-        const parsedParams = queryString.parseUrl(url).query;
-        console.log("Parsed parameters:", parsedParams);
+    try {
+      console.log("Handling deep link with data:", JSON.stringify(data));
+      
+      let url = "";
+      if (typeof data === 'string') {
+        url = data;
+      } else if (typeof data === 'object') {
+        url = data.url || "";
+      }
 
-        // Check if it's a product deeplink
-        if (parsedParams.product_id) {
-          const productId = parseInt(parsedParams.product_id);
-          console.log("Product deeplink detected, product ID:", productId);
-          
-          // Navigate to product detail if navigation is ready
-          if (navigationRef.current) {
-            // Import products to find the product
-            const { products } = require('./data/products');
-            const product = products.find(p => p.id === productId);
-            
-            if (product) {
-              console.log("Navigating to product:", product.name);
-              navigationRef.current.navigate('ProductDetail', { product });
-            } else {
-              console.log("Product not found with ID:", productId);
-              navigationRef.current.navigate('Home');
-            }
-          }
-        } else {
-          console.log("No product_id found in deeplink, navigating to Home");
-          if (navigationRef.current) {
-            navigationRef.current.navigate('Home');
+      let productId = null;
+
+      // 1. Check direct properties & sdkParams from SDK callback first
+      if (typeof data === 'object' && data !== null) {
+        // Check deepLinkValue mapping
+        if (data.deepLinkValue === 'product' && data.p1) {
+          productId = parseInt(data.p1);
+        } else if (data.deepLinkValue && !isNaN(parseInt(data.deepLinkValue))) {
+          productId = parseInt(data.deepLinkValue);
+        }
+        
+        // Check sdkParams (which holds productId in the provided callback payload)
+        if (!productId && data.sdkParams) {
+          if (data.sdkParams.productId) {
+            productId = parseInt(data.sdkParams.productId);
+          } else if (data.sdkParams.product_id) {
+            productId = parseInt(data.sdkParams.product_id);
           }
         }
-
-        console.log("Deep link processed successfully");
-      } catch (error) {
-        console.error("Error parsing deep link:", error);
+        
+        // Check direct key fields
+        if (!productId) {
+          if (data.productId) {
+            productId = parseInt(data.productId);
+          } else if (data.product_id) {
+            productId = parseInt(data.product_id);
+          }
+        }
       }
-    } else {
-      console.log("No URL provided to handleDeepLink");
+
+      // 2. Fallback: Parse query parameters from the URL if productId not set yet
+      if (!productId && url) {
+        const parsedParams = queryString.parseUrl(url).query;
+        console.log("Parsed query parameters from URL:", parsedParams);
+        if (parsedParams.productId) {
+          productId = parseInt(parsedParams.productId);
+        } else if (parsedParams.product_id) {
+          productId = parseInt(parsedParams.product_id);
+        }
+      }
+
+      // 3. Store and trigger navigation if productId is found
+      if (productId) {
+        console.log("Product ID detected for redirection:", productId);
+        pendingProductIdRef.current = productId;
+        triggerPendingNavigation();
+      }
+    } catch (error) {
+      console.error("Error processing deep link:", error);
+    }
+  };
+
+  const triggerPendingNavigation = () => {
+    if (pendingProductIdRef.current && navigationRef.current && navigationRef.current.isReady()) {
+      const currentRoute = navigationRef.current.getCurrentRoute();
+      console.log("triggerPendingNavigation - Current Route:", currentRoute?.name);
+
+      // List of screens where we should NOT interrupt with deep link redirection
+      const guestRoutes = ['Splash', 'Onboarding', 'Login', 'Signup'];
+
+      if (currentRoute?.name && !guestRoutes.includes(currentRoute.name)) {
+        const targetId = pendingProductIdRef.current;
+        console.log("Navigating from pending deep link to product ID:", targetId);
+        
+        const { products } = require('./data/products');
+        const product = products.find(p => p.id === targetId);
+        
+        if (product) {
+          // Clear pending ID before navigating to prevent loops
+          pendingProductIdRef.current = null;
+          navigationRef.current.navigate('ProductDetail', { product });
+        } else {
+          console.log("Product not found with ID:", targetId);
+          pendingProductIdRef.current = null;
+          navigationRef.current.navigate('Home');
+        }
+      } else {
+        console.log("App is still in onboarding/auth flow, holding deep link navigation.");
+      }
     }
   };
 
@@ -363,7 +418,13 @@ const App = () => {
     <SafeAreaProvider>
       <CartProvider>
         <WishlistProvider>
-          <NavigationContainer ref={navigationRef}>
+          <NavigationContainer 
+            ref={navigationRef}
+            onStateChange={() => {
+              console.log("Navigation state changed, checking for pending deep link...");
+              triggerPendingNavigation();
+            }}
+          >
           <Stack.Navigator initialRouteName="Splash">
             <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }} />
