@@ -1,6 +1,7 @@
 package com.apptrove.reactmarket
 
 import android.app.Application
+import a.BuildConfig
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
